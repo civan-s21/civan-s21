@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte Interactivo: Hardening Automatizado en la PSA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- 
+        Chosen Palette: Corporate Calm (Slate, Sky, Neutral)
+        Application Structure Plan: A single-page, scrolling narrative structure. It starts with a high-level overview (Problem/Solution), then allows a "deep dive" into the technical solution and project details via tabbed and accordion sections. It visualizes the impact and ends with conclusions and personal reflections. This structure guides the user through a story, from problem to personal growth. Key new interactions are the accordion for the hardening checklist and the timeline for reflections, making dense information highly explorable.
+        Visualization & Content Choices: 
+        - Problem (Time): Goal -> Compare. Method -> Bar Chart (Chart.js). Interaction -> Hover. Justification -> Visually dramatizes efficiency gain, now with more realistic data.
+        - Hardening Checklist: Goal -> Inform/Organize. Method -> Interactive Accordion (HTML/JS). Interaction -> Click to expand/collapse. Justification -> Makes the technical solution tangible and explorable without cluttering the UI.
+        - Project Details (Entregables): Goal -> Inform/Organize. Method -> Tabbed interface with multiple code snippets and a specific verification script. Interaction -> Click to switch tabs, click to copy code. Justification -> Showcases the actual code deliverables as requested.
+        - Reflections: Goal -> Inform. Method -> Interactive Timeline (HTML/JS). Interaction -> Click to view text for each stage. Justification -> Presents personal growth in an engaging, narrative format.
+        CONFIRMATION: NO SVG graphics used. NO Mermaid JS used.
+    -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* neutral-50 */
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 320px;
+            max-height: 40vh;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .tab-button.active {
+            border-color: #0284c7; /* sky-600 */
+            color: #0284c7;
+            background-color: #f0f9ff; /* sky-50 */
+        }
+        .tab-content, .accordion-content, .timeline-content-item {
+            display: none;
+        }
+        .tab-content.active, .accordion-content.active, .timeline-content-item.active {
+            display: block;
+        }
+        .accordion-button.active {
+            background-color: #e0f2fe; /* sky-100 */
+            color: #0c4a6e; /* sky-900 */
+        }
+        .timeline-button.active {
+            background-color: #0ea5e9; /* sky-500 */
+            transform: scale(1.1);
+        }
+        .code-block {
+            position: relative;
+            background-color: #1e293b; /* slate-800 */
+            color: #e2e8f0; /* slate-200 */
+            border-radius: 0.5rem;
+            padding: 1rem;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem;
+        }
+        .code-block button {
+             font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="text-slate-700">
+
+    <!-- Header -->
+    <header class="bg-slate-800 text-white text-center py-16 px-4">
+        <h1 class="text-4xl md:text-5xl font-bold">Hardening Automatizado en Servidores Debian</h1>
+        <p class="text-xl mt-4 text-slate-300">Un Proyecto de Práctica Profesional para la Policía de Seguridad Aeroportuaria (PSA)</p>
+        <p class="mt-2 text-lg text-slate-400">Por: Iván Carpio</p>
+    </header>
+
+    <main class="container mx-auto px-4 py-12 md:py-16">
+
+        <!-- Navigation -->
+        <nav class="sticky top-0 bg-slate-50/80 backdrop-blur-lg z-10 mb-12 rounded-lg shadow-sm">
+            <div class="max-w-6xl mx-auto px-4">
+                <div class="flex items-center justify-center h-16">
+                    <div class="flex items-center space-x-4 md:space-x-6">
+                        <a href="#desafio" class="text-slate-600 hover:text-sky-600 transition-colors px-3 py-2 rounded-md text-sm font-medium">El Desafío</a>
+                        <a href="#solucion" class="text-slate-600 hover:text-sky-600 transition-colors px-3 py-2 rounded-md text-sm font-medium">La Solución</a>
+                        <a href="#checklist" class="text-slate-600 hover:text-sky-600 transition-colors px-3 py-2 rounded-md text-sm font-medium">Checklist</a>
+                        <a href="#proyecto" class="text-slate-600 hover:text-sky-600 transition-colors px-3 py-2 rounded-md text-sm font-medium">El Proyecto</a>
+                        <a href="#impacto" class="text-slate-600 hover:text-sky-600 transition-colors px-3 py-2 rounded-md text-sm font-medium">Impacto</a>
+                        <a href="#reflexiones" class="text-slate-600 hover:text-sky-600 transition-colors px-3 py-2 rounded-md text-sm font-medium">Reflexiones</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Section 1: El Desafío -->
+        <section id="desafio" class="mb-20 scroll-mt-24">
+            <h2 class="text-3xl font-bold text-center mb-2 text-slate-800">El Desafío: El Riesgo del Proceso Manual</h2>
+            <p class="text-center max-w-3xl mx-auto mb-10 text-lg">La configuración de seguridad de los servidores críticos de la PSA era un proceso lento y propenso a errores, consumiendo recursos valiosos y generando inconsistencias que representaban un riesgo para la infraestructura.</p>
+            <div class="grid md:grid-cols-3 gap-8 text-center">
+                <div class="bg-white p-6 rounded-lg shadow-md border border-slate-200">
+                    <div class="text-4xl mb-3">⏱️</div>
+                    <h3 class="font-bold text-xl mb-2 text-slate-800">Tiempo Excesivo</h3>
+                    <p>Cada servidor requería de <strong>20 a 25 horas</strong> de trabajo manual para ser configurado, retrasando la puesta en producción de servicios críticos.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md border border-slate-200">
+                     <div class="text-4xl mb-3">🧬</div>
+                    <h3 class="font-bold text-xl mb-2 text-slate-800">Inconsistencia Crítica</h3>
+                    <p>La configuración dependía del criterio de cada técnico, resultando en diferentes y desiguales niveles de seguridad entre sistemas similares.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md border border-slate-200">
+                     <div class="text-4xl mb-3">🔍</div>
+                    <h3 class="font-bold text-xl mb-2 text-slate-800">Falta de Trazabilidad</h3>
+                    <p>Las modificaciones no se documentaban sistemáticamente, dificultando auditorías futuras y la resolución de problemas (troubleshooting).</p>
+                </div>
+            </div>
+        </section>
+        
+        <hr class="my-16 border-slate-200">
+
+        <!-- Section 2: La Solución -->
+        <section id="solucion" class="mb-20 scroll-mt-24">
+            <h2 class="text-3xl font-bold text-center mb-2 text-slate-800">La Solución: Automatización con Ansible</h2>
+             <p class="text-center max-w-3xl mx-auto mb-10 text-lg">Se propuso una transformación del proceso, pasando de un enfoque manual y artesanal a un modelo automatizado, estandarizado y escalable utilizando Ansible como herramienta central.</p>
+            <div class="bg-white p-8 rounded-lg shadow-lg border border-slate-200">
+                <div class="flex flex-col md:flex-row items-center justify-around gap-8">
+                    <div class="text-center">
+                        <h3 class="text-2xl font-semibold mb-4 text-red-600">Antes</h3>
+                        <div class="flex items-center gap-4">
+                            <div class="text-5xl">🧑‍💻</div>
+                            <div class="text-2xl font-mono text-slate-400">→</div>
+                            <div class="flex flex-col gap-2">
+                                <div class="w-24 h-8 bg-red-200 rounded"></div>
+                                <div class="w-24 h-8 bg-yellow-200 rounded"></div>
+                                <div class="w-24 h-8 bg-blue-200 rounded"></div>
+                            </div>
+                        </div>
+                        <p class="mt-4 text-sm text-slate-500">Manual e Inconsistente</p>
+                    </div>
+                    <div class="text-5xl text-sky-500 font-bold hidden md:block">⇒</div>
+                    <div class="text-center">
+                        <h3 class="text-2xl font-semibold mb-4 text-green-600">Ahora</h3>
+                         <div class="flex items-center gap-4">
+                            <div class="text-5xl">🤖</div>
+                            <div class="text-2xl font-mono text-slate-400">→</div>
+                            <div class="flex flex-col gap-2">
+                                <div class="w-24 h-8 bg-green-300 rounded"></div>
+                                <div class="w-24 h-8 bg-green-300 rounded"></div>
+                                <div class="w-24 h-8 bg-green-300 rounded"></div>
+                            </div>
+                        </div>
+                        <p class="mt-4 text-sm text-slate-500">Automatizado y Estándar</p>
+                    </div>
+                </div>
+                 <p class="text-center mt-8 text-lg max-w-2xl mx-auto">Con Ansible, se define un <strong>único estándar de seguridad</strong> (playbook) que se aplica a todos los servidores de forma automática, garantizando uniformidad y eliminando el error humano.</p>
+            </div>
+        </section>
+
+        <hr class="my-16 border-slate-200">
+        
+        <!-- UPDATED Section: Checklist Interactivo -->
+        <section id="checklist" class="mb-20 scroll-mt-24">
+            <h2 class="text-3xl font-bold text-center mb-2 text-slate-800">Checklist Interactivo de Hardening</h2>
+            <p class="text-center max-w-3xl mx-auto mb-10 text-lg">Estas son las medidas de seguridad concretas que se automatizaron, extraídas de los playbooks del proyecto. Haz clic en cada categoría para explorar las configuraciones aplicadas.</p>
+            <div class="max-w-3xl mx-auto space-y-3" id="accordion-container">
+                <div class="border border-slate-200 rounded-lg"><button class="accordion-button w-full flex justify-between items-center text-left p-4 font-semibold text-lg hover:bg-slate-50 transition-colors"><span>⚙️ Núcleo y Sistema Base</span><span class="accordion-icon transform transition-transform">▼</span></button><div class="accordion-content p-4 border-t border-slate-200 bg-white"><ul class="list-disc list-outside pl-5 space-y-2"><li><strong>Sincronización de Tiempo:</strong> Configuración de NTP y Timezone (America/Argentina/Buenos_Aires).</li><li><strong>Parámetros del Kernel (sysctl):</strong> Deshabilitación de `sysrq`, `tcp_timestamps` y `accept_redirects`. Habilitación de `log_martians`.</li><li><strong>Configuración de GRUB:</strong> Deshabilitación de IPv6 a nivel de arranque.</li><li><strong>Deshabilitación de Módulos:</strong> Bloqueo del módulo de `floppy` y `Ctrl+Alt+Del`.</li></ul></div></div>
+                <div class="border border-slate-200 rounded-lg"><button class="accordion-button w-full flex justify-between items-center text-left p-4 font-semibold text-lg hover:bg-slate-50 transition-colors"><span>📦 Gestión de Paquetes y Usuarios</span><span class="accordion-icon transform transition-transform">▼</span></button><div class="accordion-content p-4 border-t border-slate-200 bg-white"><ul class="list-disc list-outside pl-5 space-y-2"><li><strong>Configuración de APT:</strong> Estandarización de `sources.list` y configuración de proxy APT.</li><li><strong>Actualización del Sistema:</strong> Automatización de `apt update` y `apt upgrade`.</li><li><strong>Gestión de Usuarios:</strong> Creación de usuarios de sistema con contraseñas hasheadas y asignación a grupos (`sudo`, `adm`).</li><li><strong>Hardening de `sudoers`:</strong> Aplicación de una plantilla de `sudoers` validada para controlar privilegios.</li><li><strong>Configuración de `adduser`:</strong> Se previene que nuevos usuarios se agreguen a grupos por defecto.</li></ul></div></div>
+                <div class="border border-slate-200 rounded-lg"><button class="accordion-button w-full flex justify-between items-center text-left p-4 font-semibold text-lg hover:bg-slate-50 transition-colors"><span>🛡️ Seguridad de Acceso y Red</span><span class="accordion-icon transform transition-transform">▼</span></button><div class="accordion-content p-4 border-t border-slate-200 bg-white"><ul class="list-disc list-outside pl-5 space-y-2"><li><strong>Hardening de SSH:</strong> Configuración de Banner, deshabilitación de `DebianBanner`, escucha solo en IPv4 y restricción de acceso por grupo (`AllowGroups adm`).</li><li><strong>Configuración de Postfix:</strong> Se asegura que el servicio escuche solo en `localhost` y use IPv4.</li><li><strong>Firewall:</strong> Aunque no se detalla un firewall específico en los playbooks, se asume la presencia de UFW como estándar.</li></ul></div></div>
+                <div class="border border-slate-200 rounded-lg"><button class="accordion-button w-full flex justify-between items-center text-left p-4 font-semibold text-lg hover:bg-slate-50 transition-colors"><span>📊 Auditoría y Monitoreo</span><span class="accordion-icon transform transition-transform">▼</span></button><div class="accordion-content p-4 border-t border-slate-200 bg-white"><ul class="list-disc list-outside pl-5 space-y-2"><li><strong>Instalación y Configuración de `auditd`:</strong> Habilitación de dispatch a syslog e instalación de reglas de auditoría.</li><li><strong>Configuración de `rsyslog`:</strong> Integración con SCAL y estandarización del formato de logs.</li><li><strong>Instalación de `logwatch`:</strong> Configuración de nivel de detalle a `High` para reportes exhaustivos.</li><li><strong>Configuración de `munin-node`:</strong> Ajuste de permisos y dirección de escucha para monitoreo.</li></ul></div></div>
+                <div class="border border-slate-200 rounded-lg"><button class="accordion-button w-full flex justify-between items-center text-left p-4 font-semibold text-lg hover:bg-slate-50 transition-colors"><span>🌐 Hardening de Servicios Web</span><span class="accordion-icon transform transition-transform">▼</span></button><div class="accordion-content p-4 border-t border-slate-200 bg-white"><ul class="list-disc list-outside pl-5 space-y-2"><li><strong>Apache2:</strong> Hardening de `security.conf`, deshabilitación de `autoindex`, configuración de Virtual Hosts (HTTP/HTTPS) y rotación de logs.</li><li><strong>PHP:</strong> Aplicación de configuraciones de seguridad en `php.ini` para deshabilitar funciones peligrosas.</li><li><strong>Tomcat 10:</strong> Configuración de `tomcat-users.xml`, `server.xml` y `logging.properties`. Gestión de certificados SSL/TLS.</li><li><strong>Python/Django:</strong> Creación de entorno virtual (`venv`), instalación de dependencias con `pip` y configuración de Virtual Host para WSGI.</li></ul></div></div>
+                <div class="border border-slate-200 rounded-lg"><button class="accordion-button w-full flex justify-between items-center text-left p-4 font-semibold text-lg hover:bg-slate-50 transition-colors"><span>💾 Sistema de Backups y Agentes</span><span class="accordion-icon transform transition-transform">▼</span></button><div class="accordion-content p-4 border-t border-slate-200 bg-white"><ul class="list-disc list-outside pl-5 space-y-2"><li><strong>Configuración de Restic:</strong> Creación de usuario, enjaulamiento SSH en el servidor de backup, y despliegue de scripts y tareas cron para backups automatizados.</li><li><strong>Instalación de Agente GLPI:</strong> Despliegue y configuración del agente de inventario con su tarea cron correspondiente.</li><li><strong>Integración con Hyper-V:</strong> Instalación de `hyperv-daemons` y scripts de integración.</li></ul></div></div>
+            </div>
+        </section>
+
+        <hr class="my-16 border-slate-200">
+
+        <!-- Section 3: El Proyecto -->
+        <section id="proyecto" class="mb-20 scroll-mt-24">
+            <h2 class="text-3xl font-bold text-center mb-2 text-slate-800">Explorando el Proyecto</h2>
+            <p class="text-center max-w-3xl mx-auto mb-10 text-lg">Esta sección detalla el diagnóstico, la propuesta y los resultados tangibles del proyecto. Navega por las pestañas para descubrir cada componente de la práctica profesional.</p>
+            
+            <div class="max-w-4xl mx-auto">
+                <div class="flex border-b border-slate-200 mb-6">
+                    <button class="tab-button flex-1 py-3 px-4 text-lg font-medium text-slate-500 border-b-2 border-transparent hover:border-slate-300 transition-colors active" onclick="openTab(event, 'diagnostico')">Diagnóstico</button>
+                    <button class="tab-button flex-1 py-3 px-4 text-lg font-medium text-slate-500 border-b-2 border-transparent hover:border-slate-300 transition-colors" onclick="openTab(event, 'propuesta')">Propuesta</button>
+                    <button class="tab-button flex-1 py-3 px-4 text-lg font-medium text-slate-500 border-b-2 border-transparent hover:border-slate-300 transition-colors" onclick="openTab(event, 'entregables')">Entregables</button>
+                </div>
+                <!-- UPDATED Tab Content -->
+                <div class="bg-white p-8 rounded-lg shadow-lg border border-slate-200">
+                    <div id="diagnostico" class="tab-content active"><h3 class="text-2xl font-semibold mb-4 text-slate-800">Análisis de la Situación</h3><p class="mb-6">El diagnóstico se basó en entrevistas con el personal técnico, análisis de logs y escaneos de vulnerabilidad. Se identificaron cuatro áreas principales de mejora:</p><ul class="space-y-4"><li class="flex items-start"><span class="bg-sky-100 text-sky-700 text-xl font-bold rounded-full h-8 w-8 flex items-center justify-center mr-4 flex-shrink-0">1</span><span><strong>Configuración Inconsistente:</strong> No existía una guía unificada, dejando las decisiones críticas de seguridad a criterio individual.</span></li><li class="flex items-start"><span class="bg-sky-100 text-sky-700 text-xl font-bold rounded-full h-8 w-8 flex items-center justify-center mr-4 flex-shrink-0">2</span><span><strong>Procesos Ineficientes:</strong> El hardening manual retrasaba significativamente la disponibilidad de nuevos servicios.</span></li><li class="flex items-start"><span class="bg-sky-100 text-sky-700 text-xl font-bold rounded-full h-8 w-8 flex items-center justify-center mr-4 flex-shrink-0">3</span><span><strong>Falta de Trazabilidad:</strong> Sin un registro sistemático, era imposible auditar los cambios de configuración de manera efectiva.</span></li><li class="flex items-start"><span class="bg-sky-100 text-sky-700 text-xl font-bold rounded-full h-8 w-8 flex items-center justify-center mr-4 flex-shrink-0">4</span><span><strong>Presión Operativa:</strong> Las urgencias diarias impedían al equipo dedicar tiempo a mejoras estructurales de largo plazo.</span></li></ul></div>
+                    <div id="propuesta" class="tab-content"><h3 class="text-2xl font-semibold mb-4 text-slate-800">Plan de Acción</h3><p class="mb-6">La propuesta se centró en un plan de acción claro y con un alcance definido para garantizar su viabilidad y éxito dentro del marco de la práctica profesional.</p><div class="space-y-4"><div><h4 class="font-bold text-lg">Alcance del Proyecto</h4><p>Diseño y prueba de playbooks Ansible para hardening de Debian 12, cubriendo configuraciones de usuarios, permisos, SSH, firewall y logs, aplicado únicamente en entornos de prueba (desa y test).</p></div><div><h4 class="font-bold text-lg">Actividades Realizadas</h4><ol class="list-decimal list-inside space-y-2 mt-2"><li>Relevamiento del estado actual de los servidores.</li><li>Análisis de guías de buenas prácticas (CIS Benchmark, Debian Manual).</li><li>Diseño y programación de playbooks en Ansible.</li><li>Pruebas exhaustivas en entornos virtualizados.</li><li>Validación de configuraciones con herramientas de seguridad.</li><li>Elaboración de la guía técnica para futuras implementaciones.</li></ol></div></div></div>
+                    <div id="entregables" class="tab-content">
+                        <h3 class="text-2xl font-semibold mb-4 text-slate-800">Resultados y Herramientas</h3>
+                        <p class="mb-6">El proyecto generó herramientas funcionales y documentación clave. A continuación se presentan los anexos técnicos más relevantes.</p>
+                        
+                        <div class="space-y-6">
+                            <div>
+                                <h4 class="font-bold text-lg mb-2 text-sky-800">Anexo A: Muestras de Playbooks de Ansible</h4>
+                                <p class="mb-3 text-sm">Fragmentos de código que ilustran la lógica de automatización implementada.</p>
+                                <div class="space-y-4">
+                                    <div class="code-block"><button onclick="copyCode(this)" class="absolute top-2 right-2 bg-slate-600 hover:bg-slate-500 text-white px-2 py-1 rounded text-xs">Copiar</button><pre><code># Tarea: Configuración de Backup con Restic (main.yml)
+- name: Servidor a backupear - Crear Repositorio
+  become: True
+  shell: 'restic -p /root/bkp-pwd.txt -r sftp:{{item.user}}@{{item.server}}:backup init'
+  when: not resticconfig.stat.exists
+
+- name: Servidor a backupear - Crear tarea cron
+  become: True
+  cron:
+    name: 'Tarea de backup con Restic'
+    hour: '2'
+    minute: '0'
+    user: root
+    job: '/root/bkp-restic.sh'</code></pre></div>
+                                    <div class="code-block"><button onclick="copyCode(this)" class="absolute top-2 right-2 bg-slate-600 hover:bg-slate-500 text-white px-2 py-1 rounded text-xs">Copiar</button><pre><code># Tarea: Creación de Entorno Virtual Python (main4.yml)
+- name: Creacion de Entorno Virtual e Instalacion de Librerias
+  become: True
+  become_user: "{{sitio}}-{{ambiente}}"
+  pip:
+    virtualenv: /home/{{sitio}}-{{ambiente}}/web/{{sitio}}env
+    name: "{{ requirements_content.content.strip().splitlines() }}"
+    umask: "0022"</code></pre></div>
+                                    <div class="code-block"><button onclick="copyCode(this)" class="absolute top-2 right-2 bg-slate-600 hover:bg-slate-500 text-white px-2 py-1 rounded text-xs">Copiar</button><pre><code># Tarea: Configuración de conector SSL en Tomcat (main3.yml)
+- name: Configurar Server XML
+  become: True
+  template: 
+    src: server.xml.j2 
+    dest: /etc/tomcat10/server.xml
+
+- name: Permisos - Certificado PFX
+  become: True
+  copy: 
+    src: /home/{{user.stdout}}/certificado.pfx 
+    dest: /etc/tomcat10/certificado.pfx 
+    remote_src: yes 
+    owner: root group: tomcat mode: 0640</code></pre></div>
+                                </div>
+                            </div>
+                            <div class="mt-6">
+                                <h4 class="font-bold text-lg mb-2 text-sky-800">Anexo B: Script de Verificación</h4>
+                                <p class="mb-2 text-sm">Script para auditar si las políticas de hardening fueron aplicadas correctamente.</p>
+                                <div class="code-block"><button onclick="copyCode(this)" class="absolute top-2 right-2 bg-slate-600 hover:bg-slate-500 text-white px-2 py-1 rounded text-xs">Copiar</button><pre><code id="verificationScript">#!/bin/bash
+GREEN='\033[0;32m'; RED='\033[0;31m'; NC='\033[0m'
+echo "--- Verificación de Hardening ---"
+
+echo "[+] Verificando Backup (Restic)..."
+if [ -f /root/bkp-restic.sh ]; then
+  echo -e "  - Script bkp-restic.sh: ${GREEN}OK${NC}"
+else
+  echo -e "  - Script bkp-restic.sh: ${RED}FALLÓ${NC}"
+fi
+
+echo "[+] Verificando Entorno Python..."
+# Nota: Reemplazar 'sitio-desa' con el nombre real del entorno
+if [ -d /home/sitio-desa/web/sitioenv ]; then
+  echo -e "  - Directorio venv Python: ${GREEN}OK${NC}"
+else
+  echo -e "  - Directorio venv Python: ${RED}FALLÓ${NC}"
+fi
+
+echo "[+] Verificando Apache2..."
+if grep -q "ServerTokens Prod" /etc/apache2/conf-available/security.conf; then
+  echo -e "  - ServerTokens Prod: ${GREEN}OK${NC}"
+else
+  echo -e "  - ServerTokens Prod: ${RED}FALLÓ${NC}"
+fi
+</code></pre></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <hr class="my-16 border-slate-200">
+        
+        <section id="impacto" class="mb-20 scroll-mt-24">
+            <h2 class="text-3xl font-bold text-center mb-10 text-slate-800">Impacto Cuantificable del Proyecto</h2>
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h3 class="text-2xl font-semibold mb-4 text-center">Reducción Drástica del Tiempo</h3>
+                    <p class="text-center mb-6">El resultado más significativo es la optimización del tiempo. Lo que antes tomaba días, ahora se completa en minutos, liberando al equipo técnico para tareas de mayor valor.</p>
+                    <div class="chart-container">
+                        <canvas id="timeChart"></canvas>
+                    </div>
+                    <p class="text-center mt-4 text-sm text-slate-500">Este tiempo de ejecución automatizado se aplica a múltiples servidores simultáneamente, a diferencia del tiempo manual que se multiplica por cada servidor.</p>
+                </div>
+                <div>
+                     <h3 class="text-2xl font-semibold mb-4 text-center">Entorno de Aplicaciones Protegido</h3>
+                     <p class="text-center mb-6">La solución estandariza la seguridad en un parque de servidores heterogéneo, que soporta las aplicaciones críticas para las operaciones de la PSA.</p>
+                     <div class="chart-container">
+                        <canvas id="appStackChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <hr class="my-16 border-slate-200">
+
+        <!-- UPDATED Section: Reflexiones -->
+        <section id="reflexiones" class="mb-20 scroll-mt-24">
+            <h2 class="text-3xl font-bold text-center mb-2 text-slate-800">Mi Trayectoria en la Práctica</h2>
+            <p class="text-center max-w-3xl mx-auto mb-10 text-lg">Esta práctica fue un viaje de aprendizaje. Selecciona cada etapa para ver mis reflexiones personales y profesionales.</p>
+            
+            <div class="max-w-4xl mx-auto">
+                <div class="relative">
+                    <div class="absolute left-0 right-0 top-4 w-full h-0.5 bg-slate-300 -translate-y-1/2"></div>
+                    <div class="relative flex justify-between items-start">
+                        <div class="w-1/3 text-center">
+                            <button class="timeline-button z-10 w-8 h-8 rounded-full bg-sky-400 hover:bg-sky-500 transition-all duration-300 flex items-center justify-center text-white font-bold mx-auto active" onclick="showReflection('inicio')">1</button>
+                            <div class="mt-2 font-semibold">Inicio</div>
+                        </div>
+                        <div class="w-1/3 text-center">
+                            <button class="timeline-button z-10 w-8 h-8 rounded-full bg-sky-400 hover:bg-sky-500 transition-all duration-300 flex items-center justify-center text-white font-bold mx-auto" onclick="showReflection('desarrollo')">2</button>
+                            <div class="mt-2 font-semibold">Desarrollo</div>
+                        </div>
+                        <div class="w-1/3 text-center">
+                            <button class="timeline-button z-10 w-8 h-8 rounded-full bg-sky-400 hover:bg-sky-500 transition-all duration-300 flex items-center justify-center text-white font-bold mx-auto" onclick="showReflection('final')">3</button>
+                            <div class="mt-2 font-semibold">Final</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="timeline-content" class="mt-8 bg-white p-8 rounded-lg shadow-lg border border-slate-200 min-h-[200px]">
+                    <div id="reflection-inicio" class="timeline-content-item active">
+                        <h3 class="text-xl font-bold mb-2 text-sky-700">Expectativas y Desafíos Iniciales</h3>
+                        <p>Mis expectativas se centraban en aplicar conocimientos teóricos en un entorno real y de alta exigencia. Sentía una gran motivación, pero también incertidumbre sobre cómo una propuesta de cambio hacia la automatización sería recibida por un equipo con procesos manuales ya establecidos.</p>
+                    </div>
+                    <div id="reflection-desarrollo" class="timeline-content-item">
+                        <h3 class="text-xl font-bold mb-2 text-sky-700">Colaboración y Primeros Logros</h3>
+                        <p>A lo largo de la práctica, mi propuesta fue bien recibida por el personal de IT. El principal desafío fue encontrar los momentos para avanzar en medio de las urgencias operativas. El momento más gratificante fue ver los playbooks ejecutarse por primera vez de manera exitosa en el entorno de pruebas, validando que el enfoque era el correcto.</p>
+                    </div>
+                    <div id="reflection-final" class="timeline-content-item">
+                        <h3 class="text-xl font-bold mb-2 text-sky-700">Crecimiento y Aportes</h3>
+                        <p>Esta experiencia fue invaluable. Solidifiqué mis habilidades prácticas en Ansible y aprendí a presentar y defender una propuesta de mejora, no solo desde lo técnico, sino mostrando sus beneficios para la organización. Las expectativas iniciales fueron superadas, logrando proponer una mejora tangible que fue valorada por la organización.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <hr class="my-16 border-slate-200">
+
+        <section id="conclusiones" class="max-w-4xl mx-auto scroll-mt-24">
+            <h2 class="text-3xl font-bold text-center mb-10 text-slate-800">Conclusiones y Pasos a Futuro</h2>
+            <div class="bg-white p-8 rounded-lg shadow-lg border border-slate-200">
+                <h3 class="text-2xl font-semibold mb-4 text-slate-800">Conclusión General</h3>
+                <p class="mb-6">El proyecto ha demostrado exitosamente que la automatización del hardening con Ansible no solo es viable, sino fundamental para fortalecer la seguridad y eficiencia de la infraestructura de TI en la PSA. Se ha entregado una solución funcional y documentada que elimina inconsistencias, reduce drásticamente los tiempos de configuración y mitiga el riesgo de errores humanos, cumpliendo con todos los objetivos planteados.</p>
+                <h3 class="text-2xl font-semibold mb-4 text-slate-800">Recomendaciones</h3>
+                <ul class="list-disc list-outside pl-5 space-y-3">
+                    <li><strong>Implementación Gradual:</strong> Planificar una implementación controlada en producción, comenzando por los servidores de menor criticidad.</li>
+                    <li><strong>Integración Continua:</strong> Incorporar la ejecución de estos playbooks como un paso estándar en el proceso de despliegue de cualquier nuevo servidor.</li>
+                    <li><strong>Mantenimiento Proactivo:</strong> Establecer un ciclo de revisión trimestral de los playbooks para adaptarlos a nuevas amenazas y actualizaciones de seguridad.</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-slate-800 text-white mt-16">
+        <div class="container mx-auto px-4 py-8 text-center text-slate-400">
+            <p>Reporte Interactivo desarrollado como parte de la Práctica Profesional Supervisada.</p>
+            <p>Iván Carpio - Universidad Siglo 21 - 2025</p>
+        </div>
+    </footer>
+
+    <script>
+        function openTab(evt, tabName) {
+            let i, tabcontent, tabbuttons;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].classList.remove('active');
+            }
+            tabbuttons = document.getElementsByClassName("tab-button");
+            for (i = 0; i < tabbuttons.length; i++) {
+                tabbuttons[i].classList.remove("active");
+            }
+            document.getElementById(tabName).classList.add('active');
+            evt.currentTarget.classList.add("active");
+        }
+
+        function copyCode(button) {
+            const codeBlock = button.nextElementSibling;
+            const text = codeBlock.innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                button.innerText = 'Copiado!';
+                setTimeout(() => { button.innerText = 'Copiar'; }, 2000);
+            }).catch(err => {
+                console.error('Error al copiar texto: ', err);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const accordionContainer = document.getElementById('accordion-container');
+            if(accordionContainer) {
+                accordionContainer.addEventListener('click', function(e) {
+                    const button = e.target.closest('.accordion-button');
+                    if (!button) return;
+                    const content = button.nextElementSibling;
+                    const icon = button.querySelector('.accordion-icon');
+                    const isActive = button.classList.contains('active');
+                    
+                    accordionContainer.querySelectorAll('.accordion-button').forEach(b => {
+                        b.classList.remove('active');
+                        b.nextElementSibling.classList.remove('active');
+                        b.querySelector('.accordion-icon').style.transform = 'rotate(0deg)';
+                    });
+
+                    if (!isActive) {
+                        button.classList.add('active');
+                        content.classList.add('active');
+                        icon.style.transform = 'rotate(180deg)';
+                    }
+                });
+            }
+        });
+
+        function showReflection(stage) {
+            const contentItems = document.querySelectorAll('.timeline-content-item');
+            contentItems.forEach(item => item.classList.remove('active'));
+            document.getElementById(`reflection-${stage}`).classList.add('active');
+
+            const buttons = document.querySelectorAll('.timeline-button');
+            buttons.forEach(button => button.classList.remove('active'));
+            const activeButton = Array.from(buttons).find(b => b.getAttribute('onclick').includes(`'${stage}'`));
+            if(activeButton) activeButton.classList.add('active');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const timeCtx = document.getElementById('timeChart').getContext('2d');
+            new Chart(timeCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Proceso Manual', 'Proceso Automatizado'],
+                    datasets: [{
+                        label: 'Tiempo de Configuración (Horas)',
+                        data: [22.5, 0.5], 
+                        backgroundColor: ['rgba(239, 68, 68, 0.6)', 'rgba(34, 197, 94, 0.6)'],
+                        borderColor: ['rgba(239, 68, 68, 1)', 'rgba(34, 197, 94, 1)'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true, title: { display: true, text: 'Tiempo Promedio (en Horas)' } } },
+                    plugins: { legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    if (context.dataIndex === 0) return 'Entre 20 y 25 horas';
+                                    return 'Aprox. 30 minutos (ejecución única)';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            const appStackCtx = document.getElementById('appStackChart').getContext('2d');
+            new Chart(appStackCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['PHP', 'Java', 'Python'],
+                    datasets: [{
+                        label: 'Distribución de Aplicaciones',
+                        data: [45, 45, 10],
+                        backgroundColor: ['rgba(59, 130, 246, 0.7)', 'rgba(249, 115, 22, 0.7)', 'rgba(16, 185, 129, 0.7)'],
+                        hoverOffset: 4
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } } }
+            });
+        });
+    </script>
+</body>
+</html>
